@@ -6,7 +6,7 @@ csv_file = csv.reader(open_file, delimiter=",")
 
 header_row = next(csv_file)
 
-##The enumerate() function returns both the index of each item &
+# The enumerate() function returns both the index of each item &
 # the value of each item as you loop through a list
 
 for index, column_header in enumerate(header_row):
