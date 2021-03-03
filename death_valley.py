@@ -1,18 +1,15 @@
-# 1: Changing the file to include all the data for the year of 2018 (not just one month)
-# 2: change the title to - Daily and low high temps - 2018
-# 3: extract low temps from the file and add to chart
-# 4: shade in the area between high and low
+# 1: handle error checking using try & except
+# 2: change file to use death valley data
 
 
 import csv
 from datetime import datetime
 
-open_file = open("sitka_weather_2018_simple.csv", "r")
+open_file = open("death_valley_2018_simple.csv", "r")
 
 csv_file = csv.reader(open_file, delimiter=",")
 
 header_row = next(csv_file)
-
 print(type(header_row))
 
 ##The enumerate() function returns both the index of each item &
@@ -21,6 +18,7 @@ print(type(header_row))
 
 for index, column_header in enumerate(header_row):
     print(index, column_header)
+
 
 highs = []
 dates = []
@@ -39,10 +37,17 @@ lows = []
 # & '%d' means the last part of the string is the day of the month, from 1-31
 
 for row in csv_file:
-    highs.append(int(row[5]))
-    lows.append(int(row[6]))
-    converted_date = datetime.strptime(row[2], "%Y-%m-%d")
-    dates.append(converted_date)
+    try:
+        high = int(row[4])
+        low = int(row[5])
+        converted_date = datetime.strptime(row[2], "%Y-%m-%d")
+    except ValueError:
+        print(f"missing data for {converted_date}")
+    else:
+        highs.append(high)
+        lows.append(low)
+        dates.append(converted_date)
+
 
 # print(highs)
 
@@ -83,15 +88,5 @@ plt.xlabel("", fontsize=12)
 plt.ylabel("Temperature (F)", fontsize=12)
 plt.tick_params(axis="both", which="major", labelsize=12)
 # ^^ by default it gives you major so you dont have to write it but i leave there for help
-
-plt.show()
-
-# matplotlib's pyplot API has a convenience function called subplots() which acts as a utility wrapper &
-# helps in creating common layouts of subplots, including the enclosing figure object in a single call.
-
-fig2, a = plt.subplots(2)
-
-a[0].plot(dates, highs, c="red")
-a[1].plot(dates, lows, c="blue")
 
 plt.show()
