@@ -11,133 +11,98 @@ and helps in creating common layouts of subplots, including the enclosing figure
 
 # fig, ax = plt.subplots(2,2)  -  this will create a visualization with 2 charts on it
 """
-# -----------------NOT WORKING
-"""
+
+
+# -----------------FINAL CODE
 import csv
 from datetime import datetime
 
+# AUTO INDEX SITKA
+open_sitka_file = "sitka_weather_2018_simple.csv"
+
+sitka_location_name = " "
+
+with open(open_sitka_file) as s:
+    csv_file = csv.reader(s)
+    header_row = next(csv_file)
+
+    print(header_row)
+    date_index = header_row.index("DATE")
+    high_index = header_row.index("TMAX")
+    low_index = header_row.index("TMIN")
+    name_index = header_row.index("NAME")
+
+    s_dates = []
+    s_highs = []
+    s_lows = []
+
+    for row in csv_file:
+        try:
+            high = int(row[high_index])
+            low = int(row[low_index])
+            converted_date = datetime.strptime(row[date_index], "%Y-%m-%d")
+            sitka_location_name = row[name_index]
+        except ValueError:
+            print(f"Missing data for {converted_date}")
+        else:
+            s_dates.append(converted_date)
+            s_highs.append(int(row[high_index]))
+            s_lows.append(int(row[low_index]))
+
+# AUTO INDEX DV
+open_dv_file = "death_valley_2018_simple.csv"
+
+dv_location_name = " "
+
+with open(open_dv_file) as d:
+    csv_file = csv.reader(d)
+    header_row = next(csv_file)
+
+    print(header_row)
+    date_index = header_row.index("DATE")
+    high_index = header_row.index("TMAX")
+    low_index = header_row.index("TMIN")
+    name_index = header_row.index("NAME")
+
+    d_dates = []
+    d_highs = []
+    d_lows = []
+
+    for row in csv_file:
+        try:
+            high = int(row[high_index])
+            low = int(row[low_index])
+            converted_date = datetime.strptime(row[date_index], "%Y-%m-%d")
+            dv_location_name = row[name_index]
+        except ValueError:
+            print(f"Missing data for {converted_date}")
+        else:
+            d_dates.append(converted_date)
+            d_highs.append(int(row[high_index]))
+            d_lows.append(int(row[low_index]))
+
+# CREATE PLOT
 from matplotlib import pyplot as plt
 
-
-def get_weather_data(file_name, dates, highs, lows, date_index, high_index, low_index):
-    # Get the highs and lows from a data file.
-    with open(file_name) as f:
-        reader = csv.reader(f)
-        header_row = next(reader)
-
-        date_index = header_row.index("DATE")
-        high_index = header_row.index("TMAX")
-        low_index = header_row.index("TMIN")
-        name_index = header_row.index("NAME")
-
-        # Get dates, and high and low temperatures from this file.
-        for row in reader:
-            converted_date = datetime.strptime(row[date_index], "%Y-%m-%d")
-            try:
-                high = int(row[high_index])
-                low = int(row[low_index])
-            except ValueError:
-                print(f"Missing data for {converted_date}")
-            else:
-                dates.append(converted_date)
-                highs.append(high)
-                lows.append(low)
-
-
-# Get weather data for Sitka.
-file_name = "sitka_weather_2018_simple.csv"
-dates, highs, lows = [], [], []
-get_weather_data(file_name, dates, highs, lows, date_index, high_index, low_index)
-
-# Plot Sitka weather data.
 fig, ax = plt.subplots(2)
-ax[0].plot(dates, highs, c="red")
-ax[0].plot(dates, lows, c="blue")
-plt.fill_between(dates, highs, lows, facecolor="blue", alpha=0.1)
+plt.suptitle(
+    f"Temperature comparison between {sitka_location_name} and {dv_location_name} \n",
+    fontsize=12,
+)
+# SITKA PLOT
+ax[0].plot(s_dates, s_highs, c="red")
+ax[0].plot(s_dates, s_lows, c="blue")
+ax[0].fill_between(s_dates, s_highs, s_lows, facecolor="blue", alpha=0.1)
+ax[0].title.set_text(f"{sitka_location_name}")
+# DV PLOT
+ax[1].plot(d_dates, d_highs, c="red")
+ax[1].plot(d_dates, d_lows, c="blue")
+ax[1].fill_between(d_dates, d_highs, d_lows, facecolor="blue", alpha=0.1)
+ax[1].title.set_text(f"{dv_location_name}")
 
-# Get weather data for Death Valley.
-file_name = "death_valley_2018_simple.csv"
-dates, highs, lows = [], [], []
-get_weather_data(file_name, dates, highs, lows, date_index=2, high_index=4, low_index=5)
-
-# Add Death Valley data to current plot.
-ax[1].plot(dates, highs, c="red")
-ax[1].plot(dates, lows, c="blue")
-plt.fill_between(dates, highs, lows, facecolor="blue", alpha=0.1)
-plt.ylim(10, 130)
-
-# Format
-title = "Temperature comparison between SITKA AIRPORT, AK US and DEATH VALLEY, CA US"
-plt.suptitle(title, fontsize=12)
-plt.xlabel("", fontsize=12)
-ax[0].set_title("SITKA AIRPORT, AK US", fontsize=12)
-ax[1].set_title("DEATH VALLEY, CA US", fontsize=12)
+# FORMAT
+plt.xlabel(" ", fontsize=12)
 fig.autofmt_xdate()
-plt.ylabel("", fontsize=12)
 plt.tick_params(axis="both", which="major", labelsize=12)
-# plt.ylim(10, 130)
-
-plt.show()
-
-"""
-# --------------------------------RUNS BUT DOES NOT HAVE AUTO INDEX--------------------------------------
-import csv
-from datetime import datetime
-
-from matplotlib import pyplot as plt
-
-
-def get_weather_data(file_name, dates, highs, lows, date_index, high_index, low_index):
-    # Get the highs and lows from a data file.
-    with open(file_name) as f:
-        reader = csv.reader(f)
-        header_row = next(reader)
-
-        # Get dates, and high and low temperatures from this file.
-        for row in reader:
-            converted_date = datetime.strptime(row[date_index], "%Y-%m-%d")
-            try:
-                high = int(row[high_index])
-                low = int(row[low_index])
-            except ValueError:
-                print(f"Missing data for {converted_date}")
-            else:
-                dates.append(converted_date)
-                highs.append(high)
-                lows.append(low)
-
-
-# Get weather data for Sitka.
-file_name = "sitka_weather_2018_simple.csv"
-dates, highs, lows = [], [], []
-get_weather_data(file_name, dates, highs, lows, date_index=2, high_index=5, low_index=6)
-
-# Plot Sitka weather data.
-fig, ax = plt.subplots(2)
-ax[0].plot(dates, highs, c="red")
-ax[0].plot(dates, lows, c="blue")
-ax[0].fill_between(dates, highs, lows, facecolor="blue", alpha=0.1)
-
-# Get weather data for Death Valley.
-file_name = "death_valley_2018_simple.csv"
-dates, highs, lows = [], [], []
-get_weather_data(file_name, dates, highs, lows, date_index=2, high_index=4, low_index=5)
-
-# Add Death Valley data to current plot.
-ax[1].plot(dates, highs, c="red")
-ax[1].plot(dates, lows, c="blue")
-ax[1].fill_between(dates, highs, lows, facecolor="blue", alpha=0.1)
-plt.ylim(10, 130)
-
-# Format
-title = "Temperature comparison between SITKA AIRPORT, AK US and DEATH VALLEY, CA US"
-plt.suptitle(title, fontsize=12)
-plt.xlabel("", fontsize=12)
-ax[0].set_title("SITKA AIRPORT, AK US", fontsize=12)
-ax[1].set_title("DEATH VALLEY, CA US", fontsize=12)
-fig.autofmt_xdate()
-plt.ylabel("", fontsize=12)
-plt.tick_params(axis="both", which="major", labelsize=12)
-# plt.ylim(10, 130)
 
 plt.show()
